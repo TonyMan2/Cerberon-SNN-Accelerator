@@ -12,7 +12,7 @@ module pe #(parameter NUM_CHANNELS = 16) (
     logic [7:0] weight1, selected_data, masked_weight, 
     logic [NUM_CHANNELS-1:0][7:0]nxt_masked_weight;
     logic [7:0] integrate_sig, nxt_integrate_sig; 
-    logic[7:0] running_sum; 
+    logic[7:0] running_sum, sum_of_weights; 
 
     always_ff @( posedge clk, negedge nrst ) begin
         if(!nrst) begin
@@ -35,16 +35,19 @@ module pe #(parameter NUM_CHANNELS = 16) (
         end
     endgenerate
     
-    
+    adder_tree at(.clk(clk),
+                  .nrst(nrst),
+                  .weights(selected_data),
+                  .output(sum_of_weights));
     //if mode ==0 conv, else pooling
     always_comb begin 
         
         for(int i = 0; i < NUM_CHANNELS; i++ )begin
             selected_data[i] = mode ? {7'b0,index1[i]} | 8'b0: nxt_masked_weight[i];
         end
-        //index of selected_data will enter an adder tree
-
-        //running_sum = (masket weights + integrate signal)
+        
+        
+        running_sum = (sum_of_weights + signal)
         //then you need to select between output of adder and vmem
         nxt_integrate_sig = accum_src ? vmem: running_sum;
 
