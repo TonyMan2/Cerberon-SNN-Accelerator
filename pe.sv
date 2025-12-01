@@ -1,7 +1,7 @@
 module pe #(parameter NUM_CHANNELS = 16) (
     input logic clk, nrst, mode, accum_src,
     input logic [NUM_CHANNELS-1:0] index, 
-    input logic [7:0] weight,
+    input logic [NUM_CHANNELS-1:0][7:0] weight,
     input logic vmem, vth,
     output logic [7:0] ap_result,
     output logic [8:0] conv_result
@@ -9,7 +9,8 @@ module pe #(parameter NUM_CHANNELS = 16) (
     
     logic [NUM_CHANNELS-1:0] index1;
     logic out_spike;
-    logic [7:0] weight1, selected_data, masked_weight, 
+    logic [NUM_CHANNELS-1:0][7:0] weight1, masked_weight,  
+    logic [7:0] selected_data, 
     logic [NUM_CHANNELS-1:0][7:0]nxt_masked_weight;
     logic [7:0] integrate_sig, nxt_integrate_sig; 
     logic[7:0] running_sum, sum_of_weights; 
@@ -31,7 +32,7 @@ module pe #(parameter NUM_CHANNELS = 16) (
     genvar j;
     generate
         for(j = 0; j < NUM_CHANNELS; j++)begin
-            assign nxt_masked_weight[j] = (index1[j])? weight1: 0;
+            assign nxt_masked_weight[j] = (index1[j])? weight1[j]: 0;
         end
     endgenerate
     

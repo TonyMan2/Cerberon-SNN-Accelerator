@@ -1,0 +1,32 @@
+contorls registers:
+    num_timesteps
+    input channels
+    num_filters/output channels (same thing)
+    Number of folds (assume that ever PE can handles 16 channels)
+    mode(pooling or convolution)
+    stride offset = kernel size^2 
+    kernel size(kernel dimension)
+
+Controller/address generator:
+    The main job of the controller is to keep everything in sync
+        - the convolutions are just nested for loops that are unfolded, parallelized and pipelned
+        -3 main loops
+            1. outmost loop counts the output channels (each CU  column of the systolic array will handle 1 different output channel)
+            2. second loop counts the input channels(so the channel of the filter)
+                - this counter should go up to 
+            3. inner loop counts the spatial postion(postion within a filter) 
+                -this can be broken down into 2 loops one for horizontal postion(u) and one for vertical(v)
+                -in theory v should increment every time a value was loaded from sram and u will increment after K(dimension of kernel) weights have been fetched
+             
+Address generator:
+    address = (out_channel x input_channel x K x K)  + (fold x K x K) + (u x K + v)
+    need a way to avoid multiplication use running sums
+    - Will load 1 filter(out_channel) at a time(1 for each column)
+    -    
+    - (u x K + v) : can be implement using 2 counters
+        - v will increment by 1 every time a value is fetched(counts up to K)
+        - u will increment by 3 every time v reaches (k*k) this way only need 1 multiplication
+
+    - (fold x K x K) : 
+        -K x K (fold offset) has been computed already and stored in csr 
+        -every time the CUs finish computing the values of a fold then the fold counter will increment by the fold offset(increment until )

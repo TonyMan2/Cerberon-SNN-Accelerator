@@ -3,7 +3,7 @@ module cu #(
 ) (
     input logic [NUM_PES - 1:0][NUM_CHANNELS-1:0] input_vectors, 
     input logic [NUM_PES - 1: 0] [7:0] weights,
-    input logic mode, clk, nrst, enable //mode, enable, c_in, c_out will be stored in the control registers
+    input logic mode, clk, nrst, enable //mode, enable, c_in, c_out, num_timesteps, num_folds will be stored in the control registers
     input logic [7:0] vth, 
     input logic [3:0] c_in, c_out, num_timesteps, 
     input logic [2:0] num_folds,
@@ -14,7 +14,7 @@ module cu #(
 state_t state, nxt_state;
 logic [NUM_PES-1:0][NUM_CHANNELS - 1:0] in_vec;
 logic [3:0] step_counter, next_step_counter; 
-logic [NUM_PES-1:0][7:0] ap_result, vmem;
+logic [NUM_PES-1:0][7:0] ap_result, vmem;s
 logic[NUM_PES-1:0][8:0] conv_result;
 
 typedef enum [2:0] logic { IDLE, FOLD1, FOLD2, FOLD3, FOLD4} state_t;
@@ -40,7 +40,7 @@ always_comb begin
     
     case (state)
         IDLE: begin
-            if(enable)
+            if(enable )
                 next_state = FOLD1; 
         end 
 
